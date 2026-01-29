@@ -204,7 +204,7 @@
             </div>
 
             <div class="sub-message">
-                Stop clowning around and hit those books! 🤓
+                Go back and follow the clowning around and hit those books! 🤓
             </div>
 
             <div class="visitors-section">
@@ -230,17 +230,37 @@
                         'X-Master-Key': API_KEY
                     }
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+
                 const data = await response.json();
-                return data.record.visitors || [];
+
+                // Make sure we have valid data
+                if (data && data.record && Array.isArray(data.record.visitors)) {
+                    return { success: true, visitors: data.record.visitors };
+                }
+
+                return { success: false, visitors: [] };
             } catch (error) {
                 console.log('Error loading visitors:', error);
-                return [];
+                return { success: false, visitors: [] };
             }
         }
 
         async function saveVisitor(name) {
             try {
-                let visitors = await loadVisitors();
+                const result = await loadVisitors();
+
+                // IMPORTANT: Only save if we successfully loaded existing data
+                // This prevents overwriting when there's a network error
+                if (!result.success) {
+                    console.error('Cannot save - failed to load existing visitors');
+                    return false;
+                }
+
+                let visitors = result.visitors;
 
                 // Add timestamp to make each entry unique
                 const visitorEntry = {
@@ -255,7 +275,7 @@
                     visitors = visitors.slice(-50);
                 }
 
-                await fetch(API_URL, {
+                const saveResponse = await fetch(API_URL, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -263,14 +283,18 @@
                     },
                     body: JSON.stringify({ visitors: visitors })
                 });
+
+                return saveResponse.ok;
             } catch (error) {
                 console.error('Error saving visitor:', error);
+                return false;
             }
         }
 
         async function displayVisitors() {
             const visitorsList = document.getElementById('visitorsList');
-            const visitors = await loadVisitors();
+            const result = await loadVisitors();
+            const visitors = result.visitors;
 
             if (visitors.length === 0) {
                 visitorsList.innerHTML = '<span class="loading">Be the first one! 🎉</span>';
@@ -305,7 +329,10 @@
             document.getElementById('messageSection').style.display = 'block';
 
             // Save visitor and update list
-            await saveVisitor(name);
+            const saved = await saveVisitor(name);
+            if (!saved) {
+                console.log('Note: Could not save your name to the shared list');
+            }
             await displayVisitors();
         }
 
