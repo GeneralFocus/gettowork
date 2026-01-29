@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Reminder 🤡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .message-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .clown-img {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .message {
+            font-size: 24px;
+            color: #333;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .name {
+            color: #764ba2;
+            font-size: 1.3em;
+        }
+
+        .sub-message {
+            font-size: 18px;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        .visitors-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 3px dashed #667eea;
+        }
+
+        .visitors-title {
+            font-size: 20px;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .visitors-list {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .visitor-name {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            margin: 5px;
+            border-radius: 15px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .loading {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-section" id="inputSection">
+            <h1>Enter Your Name</h1>
+            <input type="text" id="nameInput" placeholder="Type your name here..." />
+            <button onclick="showMessage()">Submit</button>
+        </div>
+
+        <div class="message-section" id="messageSection">
+            <h1>Hey there, <span class="name" id="displayName"></span>! 🤡</h1>
+
+            <div class="clown-img">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                    <!-- Clown face -->
+                    <circle cx="100" cy="100" r="80" fill="#FFE4C4" />
+
+                    <!-- Red nose -->
+                    <circle cx="100" cy="100" r="15" fill="#FF0000" />
+
+                    <!-- Eyes -->
+                    <circle cx="75" cy="80" r="8" fill="#000" />
+                    <circle cx="125" cy="80" r="8" fill="#000" />
+
+                    <!-- Big smile -->
+                    <path d="M 60 110 Q 100 140 140 110" stroke="#FF0000" stroke-width="4" fill="none" />
+
+                    <!-- Hair puffs -->
+                    <circle cx="40" cy="60" r="20" fill="#FF6B6B" />
+                    <circle cx="30" cy="80" r="18" fill="#FF6B6B" />
+                    <circle cx="160" cy="60" r="20" fill="#FF6B6B" />
+                    <circle cx="170" cy="80" r="18" fill="#FF6B6B" />
+
+                    <!-- Hat -->
+                    <rect x="70" y="20" width="60" height="15" fill="#4ECDC4" />
+                    <polygon points="100,5 80,20 120,20" fill="#4ECDC4" />
+                    <circle cx="100" cy="5" r="5" fill="#FFE66D" />
+                </svg>
+            </div>
+
+            <div class="message">
+                🎪 Go Read Your Book! 📚
+            </div>
+
+            <div class="sub-message">
+                Stop clowning around and hit those books! 🤓
+            </div>
+
+            <div class="visitors-section">
+                <div class="visitors-title">People like you have been here 😂</div>
+                <div class="visitors-list" id="visitorsList">
+                    <span class="loading">Loading...</span>
+                </div>
+            </div>
+
+            <button onclick="reset()" style="margin-top: 30px;">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        function loadVisitors() {
+            try {
+                const data = localStorage.getItem('visitor_names');
+                return data ? JSON.parse(data) : [];
+            } catch (error) {
+                console.log('No previous visitors yet');
+                return [];
+            }
+        }
+
+        function saveVisitor(name) {
+            try {
+                let visitors = loadVisitors();
+
+                // Add timestamp to make each entry unique
+                const visitorEntry = {
+                    name: name,
+                    timestamp: Date.now()
+                };
+
+                visitors.push(visitorEntry);
+
+                // Keep only the last 50 visitors to avoid too much data
+                if (visitors.length > 50) {
+                    visitors = visitors.slice(-50);
+                }
+
+                localStorage.setItem('visitor_names', JSON.stringify(visitors));
+            } catch (error) {
+                console.error('Error saving visitor:', error);
+            }
+        }
+
+        function displayVisitors() {
+            const visitorsList = document.getElementById('visitorsList');
+            const visitors = loadVisitors();
+
+            if (visitors.length === 0) {
+                visitorsList.innerHTML = '<span class="loading">Be the first one! 🎉</span>';
+                return;
+            }
+
+            // Get unique names for display (most recent occurrence)
+            const uniqueNames = {};
+            visitors.forEach(v => {
+                uniqueNames[v.name] = v.timestamp;
+            });
+
+            const sortedNames = Object.keys(uniqueNames).sort((a, b) =>
+                uniqueNames[b] - uniqueNames[a]
+            );
+
+            visitorsList.innerHTML = sortedNames
+                .map(name => `<span class="visitor-name">${name}</span>`)
+                .join('');
+        }
+
+        function showMessage() {
+            const name = document.getElementById('nameInput').value.trim();
+
+            if (name === '') {
+                alert('Please enter your name!');
+                return;
+            }
+
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('messageSection').style.display = 'block';
+
+            // Save visitor and update list
+            saveVisitor(name);
+            displayVisitors();
+        }
+
+        function reset() {
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('messageSection').style.display = 'none';
+            document.getElementById('nameInput').value = '';
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('nameInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                showMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
