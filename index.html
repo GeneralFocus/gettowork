@@ -219,19 +219,28 @@
     </div>
 
     <script>
-        function loadVisitors() {
+        const BIN_ID = '697ad0f8d0ea881f408f2576';
+        const API_KEY = '$2a$10$F4gSBWtl.LLH2hL91ECB7uRym0nIsZT.8.mjyGFAUrY1P0X8pMcha';
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+        async function loadVisitors() {
             try {
-                const data = localStorage.getItem('visitor_names');
-                return data ? JSON.parse(data) : [];
+                const response = await fetch(API_URL, {
+                    headers: {
+                        'X-Master-Key': API_KEY
+                    }
+                });
+                const data = await response.json();
+                return data.record.visitors || [];
             } catch (error) {
-                console.log('No previous visitors yet');
+                console.log('Error loading visitors:', error);
                 return [];
             }
         }
 
-        function saveVisitor(name) {
+        async function saveVisitor(name) {
             try {
-                let visitors = loadVisitors();
+                let visitors = await loadVisitors();
 
                 // Add timestamp to make each entry unique
                 const visitorEntry = {
@@ -241,20 +250,27 @@
 
                 visitors.push(visitorEntry);
 
-                // Keep only the last 50 visitors to avoid too much data
+                // Keep only the last 50 visitors
                 if (visitors.length > 50) {
                     visitors = visitors.slice(-50);
                 }
 
-                localStorage.setItem('visitor_names', JSON.stringify(visitors));
+                await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify({ visitors: visitors })
+                });
             } catch (error) {
                 console.error('Error saving visitor:', error);
             }
         }
 
-        function displayVisitors() {
+        async function displayVisitors() {
             const visitorsList = document.getElementById('visitorsList');
-            const visitors = loadVisitors();
+            const visitors = await loadVisitors();
 
             if (visitors.length === 0) {
                 visitorsList.innerHTML = '<span class="loading">Be the first one! 🎉</span>';
@@ -276,7 +292,7 @@
                 .join('');
         }
 
-        function showMessage() {
+        async function showMessage() {
             const name = document.getElementById('nameInput').value.trim();
 
             if (name === '') {
@@ -289,8 +305,8 @@
             document.getElementById('messageSection').style.display = 'block';
 
             // Save visitor and update list
-            saveVisitor(name);
-            displayVisitors();
+            await saveVisitor(name);
+            await displayVisitors();
         }
 
         function reset() {
